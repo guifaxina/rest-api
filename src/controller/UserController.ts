@@ -2,10 +2,33 @@ import { Request, Response } from "express";
 import User from "../database/schemas/User";
 
 class UserController {
+  async find(request: Request, response: Response) {
+    try {
+      const users = await User.find()
+      return response.json(users)
+    } catch (error) {
+      return response.status(400).send({
+        error: "Something went wrong, please try again",
+        message: error,
+      });
+    }
+  }
+
   async create(request: Request, response: Response) {
     const { name, email, password } = request.body;
+    
+
 
     try {
+      const userExists = await User.findOne({ email })
+      
+      if (userExists){
+        return response.status(400).json({
+          error: "Oops",
+          message: "User already exist"
+        })
+      }
+
       const user = await User.create(request.body);
       return response.json(user)
     } 
